@@ -169,8 +169,11 @@ async function loadCoupons() {
 
         json.data.forEach(coupon => {
             const isRedeemed = coupon.is_redeemed === 1;
+            const reqStreak = coupon.required_streak || 1;
+            const canRedeem = currentMaxStreak >= reqStreak;
+
             const card = document.createElement('div');
-            card.className = `reward-card ${isRedeemed ? 'redeemed' : ''} ${currentMaxStreak === 0 && !isRedeemed ? 'locked' : ''}`;
+            card.className = `reward-card ${isRedeemed ? 'redeemed' : ''} ${!canRedeem && !isRedeemed ? 'locked' : ''}`;
             
             let cleanTitle = coupon.title;
             let description = "¡Te lo mereces por tu esfuerzo!";
@@ -179,19 +182,18 @@ async function loadCoupons() {
                 description = `Desbloqueado por: ${coupon.title.replace("Premio de Constancia: ", "")}`;
             }
 
-            const canRedeem = currentMaxStreak > 0;
-
             card.innerHTML = `
                 <span class="reward-tag">Recompensa</span>
                 <h3 class="reward-title">${cleanTitle}</h3>
                 <p class="reward-desc">${description}</p>
                 <div class="reward-footer">
                     <div class="reward-meta">
-                        🎁 Especial <span class="reward-date">${formatDate(coupon.created_at)}</span>
+                        🎁 <span class="req-badge ${canRedeem ? 'met' : ''}">Racha req: ${reqStreak} d</span> 
+                        <span class="reward-date">${formatDate(coupon.created_at)}</span>
                     </div>
                     ${isRedeemed 
                         ? `<span class="badge-peach">Canjeado</span>`
-                        : `<button class="btn-redeem" ${!canRedeem ? 'disabled title="Necesitas una racha activa"' : ''} onclick="redeemCoupon(${coupon.id})">
+                        : `<button class="btn-redeem" ${!canRedeem ? 'disabled title="Necesitas una racha de '+reqStreak+' días"' : ''} onclick="redeemCoupon(${coupon.id})">
                             ${canRedeem ? 'Canjear' : 'Bloqueado 🔒'}
                            </button>`
                     }

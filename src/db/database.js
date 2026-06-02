@@ -23,6 +23,7 @@ const initDB = async () => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 is_redeemed BOOLEAN DEFAULT 0,
+                required_streak INTEGER DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -49,12 +50,12 @@ const initDB = async () => {
         if (couponCheck.rows[0].count === 0) {
             console.log('Insertando cupones por defecto...');
             await client.execute({
-                sql: "INSERT INTO coupons (title, created_at) VALUES (?, ?)",
-                args: ["Vale por un café especial ☕", new Date().toISOString()]
+                sql: "INSERT INTO coupons (title, required_streak, created_at) VALUES (?, ?, ?)",
+                args: ["Vale por un café especial ☕", 2, new Date().toISOString()]
             });
             await client.execute({
-                sql: "INSERT INTO coupons (title, created_at) VALUES (?, ?)",
-                args: ["Noche de película y palomitas 🎬", new Date().toISOString()]
+                sql: "INSERT INTO coupons (title, required_streak, created_at) VALUES (?, ?, ?)",
+                args: ["Noche de película y palomitas 🎬", 3, new Date().toISOString()]
             });
         }
 

@@ -13,16 +13,6 @@ exports.redeemCoupon = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        // VALIDACIÓN DE ESFUERZO: ¿Tiene alguna racha activa?
-        const activeStreaks = await client.execute("SELECT MAX(streak) as maxStreak FROM habits");
-        const maxStreak = activeStreaks.rows[0].maxStreak || 0;
-
-        if (maxStreak === 0) {
-            const error = new Error("Para canjear un premio debes tener al menos una racha activa. ¡No te rindas!");
-            error.statusCode = 403; // Forbidden
-            throw error;
-        }
-
         const couponResult = await client.execute({
             sql: "SELECT * FROM coupons WHERE id = ?",
             args: [id]
@@ -34,7 +24,19 @@ exports.redeemCoupon = async (req, res, next) => {
             throw error;
         }
 
-        if (couponResult.rows[0].is_redeemed) {
+        const coupon = couponResult.rows[0];
+
+        // VALIDACIÓN DE ESFUERZO PERSONALIZADA
+        const activeStreaks = await client.execute("SELECT MAX(streak) as maxStreak FROM habits");
+        const maxStreak = activeStreaks.rows[0].maxStreak || 0;
+
+        if (maxStreak < coupon.required_streak) {
+            const error = new Error(`Este premio requiere una racha de ${coupon.required_streak} días. ¡Tú puedes!`);
+            error.statusCode = 403;
+            throw error;
+        }
+
+        if (coupon.is_redeemed) {
             const error = new Error("Este cupón ya ha sido canjeado.");
             error.statusCode = 400;
             throw error;
