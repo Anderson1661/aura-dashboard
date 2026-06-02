@@ -22,7 +22,6 @@ function showToast(message, type = 'success') {
     
     container.appendChild(toast);
     
-    // Auto-eliminar después de 4 segundos
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
@@ -34,13 +33,16 @@ function showToast(message, type = 'success') {
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    if (isNaN(date)) return '';
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
 // --- CARGAR HÁBITOS ---
 async function loadHabits() {
     const container = document.getElementById('habits-list');
+    // Mostrar Skeletons mientras carga
+    container.innerHTML = '<div class="skeleton-card"></div>'.repeat(3);
+
     try {
         const res = await fetch(`${API_URL}/habits`);
         const json = await res.json();
@@ -58,13 +60,13 @@ async function loadHabits() {
         json.data.forEach(habit => {
             if (habit.completed_today) completedToday++;
             
-            const emoji = Object.keys(habitEmojis).find(key => habit.title.includes(key)) 
-                          ? habitEmojis[Object.keys(habitEmojis).find(key => habit.title.includes(key))]
-                          : habitEmojis.default;
+            const emojiKey = Object.keys(habitEmojis).find(key => habit.title.includes(key));
+            const emoji = emojiKey ? habitEmojis[emojiKey] : habitEmojis.default;
 
             const card = document.createElement('div');
             card.className = `habit-card ${habit.completed_today ? 'completed' : ''}`;
             card.innerHTML = `
+                <button class="btn-delete" onclick="deleteHabit(${habit.id})" title="Eliminar hábito">✕</button>
                 <div class="habit-info">
                     <div class="habit-icon">${emoji}</div>
                     <div class="habit-details">
@@ -85,6 +87,22 @@ async function loadHabits() {
     } catch (err) {
         showToast(`Error al cargar hábitos: ${err.message}`, 'error');
         container.innerHTML = '<div class="error-state">Error al conectar con el servidor.</div>';
+    }
+}
+
+// --- ELIMINAR HÁBITO ---
+async function deleteHabit(id) {
+    if (!confirm("¿Seguro que quieres eliminar este hábito? Se perderá la racha.")) return;
+    
+    try {
+        const res = await fetch(`${API_URL}/habits/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error);
+        
+        showToast("Hábito eliminado");
+        loadHabits();
+    } catch (err) {
+        showToast(err.message, 'error');
     }
 }
 
@@ -124,6 +142,7 @@ async function completeHabit(id) {
 async function loadCoupons() {
     const container = document.getElementById('coupons-list');
     const badge = document.getElementById('coupons-badge');
+    container.innerHTML = '<div class="skeleton-card"></div>'.repeat(2);
     
     try {
         const res = await fetch(`${API_URL}/coupons`);
@@ -144,7 +163,6 @@ async function loadCoupons() {
             const card = document.createElement('div');
             card.className = `reward-card ${coupon.is_redeemed ? 'redeemed' : ''}`;
             
-            // Limpiar título para mostrarlo bonito
             let cleanTitle = coupon.title;
             let description = "¡Te lo mereces por tu esfuerzo!";
             if (coupon.title.startsWith("Premio de Constancia: ")) {
@@ -188,14 +206,17 @@ async function redeemCoupon(id) {
     }
 }
 
-// --- GESTIÓN DE MODAL Y NUEVOS HÁBITOS ---
+// --- GESTIÓN DE MODAL ---
 const modal = document.getElementById('habit-modal');
 const addBtn = document.getElementById('add-habit-btn');
 const cancelBtn = document.getElementById('cancel-modal');
 const saveBtn = document.getElementById('save-habit');
 const input = document.getElementById('habit-title-input');
 
-addBtn.onclick = () => modal.classList.add('show');
+addBtn.onclick = () => {
+    modal.classList.add('show');
+    input.focus();
+};
 cancelBtn.onclick = () => modal.classList.remove('show');
 
 saveBtn.onclick = async () => {

@@ -25,6 +25,9 @@
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--bg-color);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(152, 169, 142, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(198, 123, 92, 0.05) 0px, transparent 50%);
     color: var(--text-dark);
     line-height: 1.6;
     min-height: 100vh;
@@ -156,9 +159,10 @@ h2 {
     gap: 16px;
 }
 
-/* CARDS HÁBITOS */
+/* CARDS HÁBITOS MEJORADAS */
 .habit-card {
-    background-color: var(--white);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
     padding: 20px 24px;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--card-shadow);
@@ -166,12 +170,51 @@ h2 {
     justify-content: space-between;
     align-items: center;
     transition: var(--transition-smooth);
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: relative;
 }
 
 .habit-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.btn-delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--sos-terracota);
+    color: white;
+    border: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    font-size: 10px;
+    cursor: pointer;
+    opacity: 0;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.habit-card:hover .btn-delete {
+    opacity: 1;
+}
+
+/* SKELETON LOADING */
+.skeleton-card {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    height: 100px;
+    border-radius: var(--border-radius-lg);
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
 
 .habit-card.completed {
