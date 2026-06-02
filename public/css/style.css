@@ -290,6 +290,16 @@ h2 {
     border: 1px dashed #DDD;
 }
 
+.reward-card.locked {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+
+.reward-card.locked .btn-redeem {
+    background-color: #CCC;
+    cursor: not-allowed;
+}
+
 .reward-card.redeemed * {
     opacity: 0.6;
 }

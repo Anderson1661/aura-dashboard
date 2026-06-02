@@ -38,9 +38,10 @@ function formatDate(dateString) {
 }
 
 // --- CARGAR HÁBITOS ---
+let currentMaxStreak = 0; // Variable global para controlar canjes
+
 async function loadHabits() {
     const container = document.getElementById('habits-list');
-    // Mostrar Skeletons mientras carga
     container.innerHTML = '<div class="skeleton-card"></div>'.repeat(3);
 
     try {
@@ -53,12 +54,16 @@ async function loadHabits() {
         if (json.data.length === 0) {
             container.innerHTML = '<div class="empty-state">No hay hábitos aún. ¡Agrega uno arriba!</div>';
             updateProgress(0, 0);
+            currentMaxStreak = 0;
             return;
         }
 
         let completedToday = 0;
+        currentMaxStreak = 0;
+
         json.data.forEach(habit => {
             if (habit.completed_today) completedToday++;
+            if (habit.streak > currentMaxStreak) currentMaxStreak = habit.streak;
             
             const emojiKey = Object.keys(habitEmojis).find(key => habit.title.includes(key));
             const emoji = emojiKey ? habitEmojis[emojiKey] : habitEmojis.default;
@@ -161,7 +166,7 @@ async function loadCoupons() {
 
         json.data.forEach(coupon => {
             const card = document.createElement('div');
-            card.className = `reward-card ${coupon.is_redeemed ? 'redeemed' : ''}`;
+            card.className = `reward-card ${coupon.is_redeemed ? 'redeemed' : ''} ${currentMaxStreak === 0 && !coupon.is_redeemed ? 'locked' : ''}`;
             
             let cleanTitle = coupon.title;
             let description = "¡Te lo mereces por tu esfuerzo!";
@@ -169,6 +174,8 @@ async function loadCoupons() {
                 cleanTitle = "Premio de Constancia";
                 description = `Desbloqueado por: ${coupon.title.replace("Premio de Constancia: ", "")}`;
             }
+
+            const canRedeem = currentMaxStreak > 0;
 
             card.innerHTML = `
                 <span class="reward-tag">Recompensa</span>
@@ -180,7 +187,9 @@ async function loadCoupons() {
                     </div>
                     ${coupon.is_redeemed 
                         ? `<span class="badge-peach">Canjeado</span>`
-                        : `<button class="btn-redeem" onclick="redeemCoupon(${coupon.id})">Canjear</button>`
+                        : `<button class="btn-redeem" ${!canRedeem ? 'disabled title="Necesitas una racha activa"' : ''} onclick="redeemCoupon(${coupon.id})">
+                            ${canRedeem ? 'Canjear' : 'Bloqueado 🔒'}
+                           </button>`
                     }
                 </div>
             `;

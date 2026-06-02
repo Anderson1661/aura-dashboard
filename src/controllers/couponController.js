@@ -13,6 +13,16 @@ exports.redeemCoupon = async (req, res, next) => {
     try {
         const { id } = req.params;
 
+        // VALIDACIÓN DE ESFUERZO: ¿Tiene alguna racha activa?
+        const activeStreaks = await client.execute("SELECT MAX(streak) as maxStreak FROM habits");
+        const maxStreak = activeStreaks.rows[0].maxStreak || 0;
+
+        if (maxStreak === 0) {
+            const error = new Error("Para canjear un premio debes tener al menos una racha activa. ¡No te rindas!");
+            error.statusCode = 403; // Forbidden
+            throw error;
+        }
+
         const couponResult = await client.execute({
             sql: "SELECT * FROM coupons WHERE id = ?",
             args: [id]
