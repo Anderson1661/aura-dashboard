@@ -62,14 +62,17 @@ async function loadHabits() {
         currentMaxStreak = 0;
 
         json.data.forEach(habit => {
-            if (habit.completed_today) completedToday++;
+            // Evaluamos explícitamente el valor 1 de SQLite
+            const isCompleted = habit.completed_today === 1;
+            
+            if (isCompleted) completedToday++;
             if (habit.streak > currentMaxStreak) currentMaxStreak = habit.streak;
             
             const emojiKey = Object.keys(habitEmojis).find(key => habit.title.includes(key));
             const emoji = emojiKey ? habitEmojis[emojiKey] : habitEmojis.default;
 
             const card = document.createElement('div');
-            card.className = `habit-card ${habit.completed_today ? 'completed' : ''}`;
+            card.className = `habit-card ${isCompleted ? 'completed' : ''}`;
             card.innerHTML = `
                 <button class="btn-delete" onclick="deleteHabit(${habit.id})" title="Eliminar hábito">✕</button>
                 <div class="habit-info">
@@ -79,7 +82,7 @@ async function loadHabits() {
                         <p class="habit-streak">🔥 ${habit.streak} días de racha</p>
                     </div>
                 </div>
-                ${habit.completed_today 
+                ${isCompleted 
                     ? `<button class="btn-done"><span>✓</span> Listo</button>`
                     : `<button class="btn-complete" onclick="completeHabit(${habit.id})">Completar</button>`
                 }
@@ -165,8 +168,9 @@ async function loadCoupons() {
         }
 
         json.data.forEach(coupon => {
+            const isRedeemed = coupon.is_redeemed === 1;
             const card = document.createElement('div');
-            card.className = `reward-card ${coupon.is_redeemed ? 'redeemed' : ''} ${currentMaxStreak === 0 && !coupon.is_redeemed ? 'locked' : ''}`;
+            card.className = `reward-card ${isRedeemed ? 'redeemed' : ''} ${currentMaxStreak === 0 && !isRedeemed ? 'locked' : ''}`;
             
             let cleanTitle = coupon.title;
             let description = "¡Te lo mereces por tu esfuerzo!";
@@ -185,7 +189,7 @@ async function loadCoupons() {
                     <div class="reward-meta">
                         🎁 Especial <span class="reward-date">${formatDate(coupon.created_at)}</span>
                     </div>
-                    ${coupon.is_redeemed 
+                    ${isRedeemed 
                         ? `<span class="badge-peach">Canjeado</span>`
                         : `<button class="btn-redeem" ${!canRedeem ? 'disabled title="Necesitas una racha activa"' : ''} onclick="redeemCoupon(${coupon.id})">
                             ${canRedeem ? 'Canjear' : 'Bloqueado 🔒'}
