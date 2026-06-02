@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura - Dashboard de Bienestar</title>
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <span class="header-tag">Tu espacio de bienestar</span>
+            <h1>Hola, Linda</h1>
+            <p class="quote">"La constancia impulsa todos tus logros." 🌸</p>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- Columna de Hábitos -->
+        <section class="panel habits-panel">
+            <div class="panel-header">
+                <h2>Mis Hábitos</h2>
+                <button id="add-habit-btn" class="btn-add">
+                    <span class="plus-icon">+</span> Agregar
+                </button>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span id="progress-text">Progreso del día 0/0</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="habits-list" class="list-container">
+                <!-- Los hábitos se cargarán dinámicamente -->
+                <div class="loading-state">Cargando hábitos...</div>
+            </div>
+        </section>
+
+        <!-- Columna de Recompensas -->
+        <section class="panel rewards-panel">
+            <div class="panel-header">
+                <h2>Recompensas</h2>
+                <span id="coupons-badge" class="badge-peach">0 disponibles</span>
+            </div>
+
+            <div id="coupons-list" class="list-container">
+                <!-- Las recompensas se cargarán dinámicamente -->
+                <div class="loading-state">Cargando recompensas...</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="sos-footer">
+        <button id="sos-btn" class="btn-sos">
+            <span class="icon">❤️</span> Me siento triste / Te extraño
+        </button>
+    </footer>
+
+    <!-- Modal para agregar hábito (Opcional pero recomendado para UX) -->
+    <div id="habit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Nuevo Hábito</h3>
+            <input type="text" id="habit-title-input" placeholder="Ej: Meditar 10 minutos" autofocus>
+            <div class="modal-actions">
+                <button id="cancel-modal" class="btn-secondary">Cancelar</button>
+                <button id="save-habit" class="btn-primary">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Toasts -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+</body>
+</html>
